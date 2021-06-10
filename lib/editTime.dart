@@ -105,7 +105,7 @@ class _EditTimeWidgetState extends State<EditTimeWidget> {
 
                       },
                       use24hFormat: false,
-                      minuteInterval: 5,
+                      minuteInterval: 1,
                     )
                         :Container()
                 )),
@@ -180,7 +180,6 @@ class _EditTimeWidgetState extends State<EditTimeWidget> {
                 child: OutlinedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.white),
                   onPressed: () {
-                    //TODO set actual values
                     ah = AlarmHeader(
                         id: widget.alarmHeaderId,
                         time: DateTime(1900, 1, 1, tod.hour, tod.minute),
