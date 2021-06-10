@@ -264,5 +264,6 @@ Future<DateTime> calcNext(int alarmHeaderId, MyDatabase db) async {
 
 void fireAlarm() {
   print('Alarm Fired at ${DateTime.now()}');
+
 }
 
