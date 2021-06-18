@@ -2,6 +2,7 @@
     package="com.example.alarm2">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
    <application
         android:label="alarm2"
         android:icon="@mipmap/ic_launcher">
@@ -55,6 +56,8 @@
                <action android:name="android.intent.action.BOOT_COMPLETED"/>
            </intent-filter>
        </receiver>
+
+       <receiver android:name=".MyAlarmReceiver"/>
 
    </application>
 </manifest>

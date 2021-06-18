@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'datamigration.dart';
@@ -8,7 +9,10 @@ import 'ring.dart';
 import 'editTime.dart';
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 
+
 class RootWidget extends StatefulWidget {
+
+
   RootWidget({Key key}) : super(key: key);
 
   @override
@@ -20,18 +24,37 @@ class _RootWidgetState extends State<RootWidget> {
 
   final Color headcolor = Colors.blueAccent;
 
+  static const platform = const MethodChannel('samples.flutter.dev/runAlarm');
+  String _batteryLevel =
+      'Battery Level';
+  Future<void> _runAlarm() async {
+    String batteryLevel;
+    try {
+      final int result = await platform.invokeMethod('runAlarm');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+    setState(() {
+      _batteryLevel = batteryLevel;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
-    alarmStart();
+    //alarmStart();//TODO 復活させる
+    _runAlarm();
 
     AlarmList al = AlarmList();
+
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: Icon(Icons.home_sharp),
-        title: Text(""),
+        title: Text(_batteryLevel),
         backgroundColor: headcolor,
         actions: [
           IconButton(
@@ -215,7 +238,7 @@ void alarmStart() async {
     print("nextTime"+nextTime.toString());
     if (nextTime == null) {
     } else {
-      AndroidAlarmManager.oneShotAt(nextTime, alarmHeaderList[i].id, fireAlarm);
+      //AndroidAlarmManager.oneShotAt(nextTime, alarmHeaderList[i].id, fireAlarm);
     }
   }
 }

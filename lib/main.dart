@@ -5,7 +5,7 @@ import 'package:android_alarm_manager/android_alarm_manager.dart';
 
 void main() async {
   runApp(MyApp());
-  await AndroidAlarmManager.initialize();
+  //await AndroidAlarmManager.initialize();
 }
 
 class MyApp extends StatelessWidget {
