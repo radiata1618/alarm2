@@ -47,22 +47,18 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
             // Note: this method is invoked on the main thread.
-                call, result ->
-            if (call.method == "runAlarm") {
-                val resultInt = runAlarm()
-                if (resultInt != -1) {
-                    result.success(resultInt)
-                } else {
-                    result.error("UNAVAILABLE", "Battery level not available.", null)
-                }
+            call, result ->
+            val resultInt = runAlarm(call.method)
+            if (resultInt != -1) {
+                result.success(resultInt)
             } else {
-                result.notImplemented()
+                result.error("UNAVAILABLE", "Battery level not available.", null)
             }
         }
     }
-    private fun runAlarm(): Int {
-        checkPermission();
+    private fun runAlarm(setTime : String): Int {
 
+        checkPermission();
 
         // Creating the pending intent to send to the BroadcastReceiver
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -77,13 +73,32 @@ class MainActivity : FlutterActivity() {
 
         Log.d("MyApp", "通りました")
         // Starts the alarm manager
+        /*
+        alarmManager.setExact(
+            AlarmManager.ELAPSED_REALTIME,
+            setTime.toLong(),
+            pendingIntent
+        )
+        一旦だめだった
+        */
+        Log.d("MyApp", "dddd"+setTime.toString())
+
+
+        alarmManager.setExact(
+            AlarmManager.ELAPSED_REALTIME,
+            setTime.toLong(),
+            pendingIntent
+        )
+
+        //TO DO　引数でもらってきた時間をセット
+/*
         alarmManager.setRepeating(
             AlarmManager.ELAPSED_REALTIME,
             20000,
             10000,
             pendingIntent
         )
-
+*/
         return 1;
     }
 

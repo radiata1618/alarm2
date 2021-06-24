@@ -10,7 +10,7 @@ import android.widget.Toast
 class MyAlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("MyApp", "通りました222")
-        Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_LONG).show()
+        //Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_LONG).show()
 
         val i = Intent(context, MainActivity::class.java)
         i.flags = Intent.FLAG_ACTIVITY_NEW_TASK

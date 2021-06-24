@@ -19,11 +19,25 @@ class RootWidget extends StatefulWidget {
   _RootWidgetState createState() => _RootWidgetState();
 }
 
+
+const platform = const MethodChannel('samples.flutter.dev/runAlarm');
+
+Future<void> _runAlarm(String alarmTime) async {
+  String resultStr;
+  try {
+    final int result = await platform.invokeMethod(alarmTime);
+    resultStr = 'Battery level at $result % .';
+  } on PlatformException catch (e) {
+    resultStr = "Failed to get battery level: '${e.message}'.";
+  }
+}
+
+
 class _RootWidgetState extends State<RootWidget> {
   var _textController = TextEditingController();
 
   final Color headcolor = Colors.blueAccent;
-
+/*
   static const platform = const MethodChannel('samples.flutter.dev/runAlarm');
   String _batteryLevel =
       'Battery Level';
@@ -38,14 +52,14 @@ class _RootWidgetState extends State<RootWidget> {
     setState(() {
       _batteryLevel = batteryLevel;
     });
-  }
+  }*/
 
 
   @override
   Widget build(BuildContext context) {
 
-    //alarmStart();//TODO 復活させる
-    _runAlarm();
+    alarmStart();
+    //_runAlarm();
 
     AlarmList al = AlarmList();
 
@@ -54,9 +68,49 @@ class _RootWidgetState extends State<RootWidget> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: Icon(Icons.home_sharp),
-        title: Text(_batteryLevel),
+        title: Text('TODO 修正する'),
         backgroundColor: headcolor,
         actions: [
+          IconButton(
+            icon: Icon(Icons.access_alarm),
+            onPressed: () {
+              _textController.text = '';
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => new AlertDialog(
+                  title: new Text("アラームセット"),
+                  content: Container(
+                      height: 50, child: Text("アラームセットしてもよろしいですか？")),
+                  // ボタンの配置
+                  actions: <Widget>[
+                    new TextButton(
+                        child: const Text('キャンセル'),
+                        onPressed: () {
+                          Navigator.pop(context, _DialogActionType.cancel);
+                        }),
+                    new TextButton(
+                        child: const Text('OK'),
+                        onPressed: () {
+                          alarmStart();
+                          Navigator.pop(context, _DialogActionType.ok);
+                        })
+                  ],
+                ),
+              ).then<void>((value) {
+                // ボタンタップ時の処理
+                switch (value) {
+                  case _DialogActionType.cancel:
+                    print("cancel...");
+                    break;
+                  case _DialogActionType.ok:
+                    print("OK!!");
+                    break;
+                  default:
+                    print("default");
+                }
+              });
+            },
+          ),
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
@@ -235,16 +289,24 @@ void alarmStart() async {
   for (int i = 0; i < alarmHeaderList.length; i++) {
     DateTime nextTime = await calcNext(alarmHeaderList[i].id, db);
 
-    print("nextTime"+nextTime.toString());
+    print("あああnextTime"+nextTime.toString());
+    print("now:"+DateTime.now().toString());
     if (nextTime == null) {
     } else {
       //AndroidAlarmManager.oneShotAt(nextTime, alarmHeaderList[i].id, fireAlarm);
+      print("セット処理");
+      print("時間inMilliseconds:"+nextTime.difference(DateTime.now()).inMilliseconds.toString());
+      print("時間inHours:"+nextTime.difference(DateTime.now()).inHours.toString());
+      print("時間inMinute:"+nextTime.difference(DateTime.now()).inMinutes.toString());
+      print("時間inseconds:"+nextTime.difference(DateTime.now()).inSeconds.toString());
+      _runAlarm(nextTime.difference(DateTime.now()).inMilliseconds.toString());
     }
   }
 }
 
 Future<DateTime> calcNext(int alarmHeaderId, MyDatabase db) async {
-  int targetWeekday;
+  DateTime initialDayNow;
+  DateTime targetDayNow;
   bool targetWeekdayValid;
 
   List<AlarmHeader> ah = await db.selectAlarmHeaderById(alarmHeaderId);
@@ -253,33 +315,36 @@ Future<DateTime> calcNext(int alarmHeaderId, MyDatabase db) async {
   }
 
   var now = DateTime.now();
-  targetWeekday = now.weekday;
+  if(now.isBefore(DateTime(now.year,now.month,now.day,ah[0].time.hour,ah[0].time.minute,0,0))) {
+    initialDayNow=now;
+  }else{
+    initialDayNow=now.add(Duration(days:1));
+  }
+print("最初のinitialDayNow"+initialDayNow.toString());
+  for (int i = 0; i < 7; i++) {
 
-  for (int i = 0; i < 8; i++) {
-    if (targetWeekday == 1) {
+    targetDayNow=initialDayNow.add(Duration(days:i));
+
+    print("targetDayNow"+i.toString()+"時間は"+targetDayNow.toString());
+    if (targetDayNow.weekday == 1) {
       targetWeekdayValid = ah[0].mondayValid;
-    } else if (targetWeekday == 2) {
+    } else if (targetDayNow.weekday == 2) {
       targetWeekdayValid = ah[0].tuesdayValid;
-    } else if (targetWeekday == 3) {
+    } else if (targetDayNow.weekday == 3) {
       targetWeekdayValid = ah[0].wednesdayValid;
-    } else if (targetWeekday == 4) {
+    } else if (targetDayNow.weekday == 4) {
       targetWeekdayValid = ah[0].thursdayValid;
-    } else if (targetWeekday == 5) {
+    } else if (targetDayNow.weekday == 5) {
       targetWeekdayValid = ah[0].fridayValid;
-    } else if (targetWeekday == 6) {
+    } else if (targetDayNow.weekday == 6) {
       targetWeekdayValid = ah[0].saturdayValid;
     } else {
       targetWeekdayValid = ah[0].sundayValid;
     }
 
+    print("targetWeekdayValid"+targetWeekdayValid.toString());
     if (targetWeekdayValid) {
-      if (i != 0 ||
-          now.isBefore(DateTime(now.year,now.month,now.day,ah[0].time.hour,ah[0].time.minute,0,0))) {
-        return(DateTime(now.year,now.month,now.day,ah[0].time.hour,ah[0].time.minute,0,0).add(Duration(days:i)));
-
-      }else{
-
-      }
+      return(DateTime(targetDayNow.year,targetDayNow.month,targetDayNow.day,ah[0].time.hour,ah[0].time.minute,0,0));
     }
   }
   return null;
