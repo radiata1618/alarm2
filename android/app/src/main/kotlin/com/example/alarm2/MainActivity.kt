@@ -65,13 +65,18 @@ class MainActivity : FlutterActivity() {
         val intent = Intent(this, MyAlarmReceiver::class.java)
         pendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        // Setting the specific time for the alarm manager to trigger the intent, in this example, the alarm is set to go off at 23:30, update the time according to your need
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = System.currentTimeMillis()
-        calendar.set(Calendar.HOUR_OF_DAY, 15)
-        calendar.set(Calendar.MINUTE, 10)
-
         Log.d("MyApp", "通りました")
+        Log.d("MyApp", "dddd"+setTime.toString())
+
+        //Set alarm time のサンプル
+        val alarmTimeAtUTC: Long = System.currentTimeMillis() + setTime.toLong()
+
+        alarmManager.setAlarmClock(
+            AlarmManager.AlarmClockInfo(alarmTimeAtUTC, pendingIntent),
+            pendingIntent
+        )
+
+        //サンプル終了
         // Starts the alarm manager
         /*
         alarmManager.setExact(
@@ -81,14 +86,50 @@ class MainActivity : FlutterActivity() {
         )
         一旦だめだった
         */
-        Log.d("MyApp", "dddd"+setTime.toString())
+/*
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = System.currentTimeMillis()
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 02)
+
+ */
+        /*
+        val alarm_time: Long = calendar.getTimeInMillis()
+        val clockInfo: AlarmManager.AlarmClockInfo = AlarmClockInfo(alarm_time, null)
+
+        Log.d("MyApp", "Alarm time"+alarm_time.toString())
+        */
+
+/*
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            setTime.toLong(),
+            pendingIntent
+        )
+
+ */
+/*
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            setTime.toLong(),
+            pendingIntent
+        )
+        //設定後すぐに実行してしまう
 
 
+ */
+
+
+        //alarmManager.setAlarmClock(setTime.toLong(),pendingIntent)
+        //alarmManager.setAlarmClock(AlarmClockInfo(alarm_time, null), pendingIntent)
+        /*
         alarmManager.setExact(
             AlarmManager.ELAPSED_REALTIME,
             setTime.toLong(),
             pendingIntent
         )
+
+         */
 
         //TO DO　引数でもらってきた時間をセット
 /*
@@ -101,13 +142,13 @@ class MainActivity : FlutterActivity() {
 */
         return 1;
     }
-
+/*
     override fun onDestroy() {
         super.onDestroy()
         // Cancels the pendingIntent if it is no longer needed after this activity is destroyed.
         alarmManager.cancel(pendingIntent)
     }
-
+*/
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
