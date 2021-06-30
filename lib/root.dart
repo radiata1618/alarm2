@@ -7,6 +7,7 @@ import 'datamigration.dart';
 import 'db.dart';
 import 'ring.dart';
 import 'editTime.dart';
+import 'testshow.dart';
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 
 
@@ -33,28 +34,42 @@ Future<void> _runAlarm(String alarmTime) async {
 }
 
 
-class _RootWidgetState extends State<RootWidget> {
+class _RootWidgetState extends State<RootWidget>  with WidgetsBindingObserver{
   var _textController = TextEditingController();
 
   final Color headcolor = Colors.blueAccent;
-/*
-  static const platform = const MethodChannel('samples.flutter.dev/runAlarm');
-  String _batteryLevel =
-      'Battery Level';
-  Future<void> _runAlarm() async {
-    String batteryLevel;
-    try {
-      final int result = await platform.invokeMethod('runAlarm');
-      batteryLevel = 'Battery level at $result % .';
-    } on PlatformException catch (e) {
-      batteryLevel = "Failed to get battery level: '${e.message}'.";
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    if (state == AppLifecycleState.paused) {
+
+    } else if (state == AppLifecycleState.resumed) {
+
+      //setState(_handleOnResumed);
+
     }
-    setState(() {
-      _batteryLevel = batteryLevel;
-    });
-  }*/
+  }
 
-
+  void _handleOnResumed() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => TestshowWidget()),
+    ).then((value) => setState(() {}));
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -71,6 +86,17 @@ class _RootWidgetState extends State<RootWidget> {
         title: Text('TODO 修正する'),
         backgroundColor: headcolor,
         actions: [
+          IconButton(
+            icon: Icon(Icons.adb_sharp),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => TestshowWidget()),
+              ).then((value) => setState(() {}));
+
+            },
+          ),
           IconButton(
             icon: Icon(Icons.access_alarm),
             onPressed: () {
