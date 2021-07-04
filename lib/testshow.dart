@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 
 
 class TestshowWidget extends StatefulWidget {
+  final alarmId;
 
 
-  TestshowWidget({Key key}) : super(key: key);
+  TestshowWidget({this.alarmId});
 
   @override
   _TestshowWidgetState createState() => _TestshowWidgetState();

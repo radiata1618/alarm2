@@ -5,11 +5,13 @@ part 'db.g.dart'; //generated when execute "flutter packages pub run build_runne
 class Parameters extends Table {
   TextColumn get code => text()();
 
-  IntColumn get numberValue => integer()();
+  IntColumn get numberValue => integer().nullable()();
 
-  TextColumn get textValue => text()();
+  TextColumn get textValue => text().nullable()();
 
-  BoolColumn get booleanValue => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get timeValue => dateTime().nullable()();
+
+  BoolColumn get booleanValue => boolean().nullable()();
 
   @override
   Set<Column> get primaryKey => {code};
@@ -58,7 +60,7 @@ class MyDatabase extends _$MyDatabase {
   MigrationStrategy get migration => destructiveFallback;
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   Future<List<Parameter>> getAllparameters() => select(parameters).get();
 
@@ -87,6 +89,7 @@ class MyDatabase extends _$MyDatabase {
   Future deletealarmheader(AlarmHeader alarmheader) =>
       delete(alarmHeaders).delete(alarmheader);
 
+
   Future<List<AlarmHeader>> selectAlarmHeaderById(int id) {
     return customSelect(
       'SELECT *' + 'From alarm_Headers ' + 'WHERE id = ?;',
@@ -94,21 +97,38 @@ class MyDatabase extends _$MyDatabase {
       readsFrom: {alarmHeaders},
     )
         .map((row) => AlarmHeader(
-            id: row.readInt('id'),
-            time: row.readDateTime('time'),
-            valid: row.readBool('valid'),
-            mondayValid: row.readBool('monday_valid'),
-            tuesdayValid: row.readBool('tuesday_valid'),
-            wednesdayValid: row.readBool('wednesday_valid'),
-            thursdayValid: row.readBool('thursday_valid'),
-            fridayValid: row.readBool('friday_valid'),
-            saturdayValid: row.readBool('saturday_valid'),
-            sundayValid: row.readBool('sunday_valid'),
-            walkTime: row.readInt('walk_time'),
-            audioPath: row.readString('audio_path'),
-            audioName: row.readString('audio_name')))
+        id: row.readInt('id'),
+        time: row.readDateTime('time'),
+        valid: row.readBool('valid'),
+        mondayValid: row.readBool('monday_valid'),
+        tuesdayValid: row.readBool('tuesday_valid'),
+        wednesdayValid: row.readBool('wednesday_valid'),
+        thursdayValid: row.readBool('thursday_valid'),
+        fridayValid: row.readBool('friday_valid'),
+        saturdayValid: row.readBool('saturday_valid'),
+        sundayValid: row.readBool('sunday_valid'),
+        walkTime: row.readInt('walk_time'),
+        audioPath: row.readString('audio_path'),
+        audioName: row.readString('audio_name')))
         .get();
   }
+
+  Future<List<Parameter>> selectParameterByCode(String code) {
+    return customSelect(
+      'SELECT *' + 'From parameters ' + 'WHERE code = ?;',
+      variables: [Variable.withString(code)],
+      readsFrom: {parameters},
+    )
+        .map((row) => Parameter(
+            code: row.readString('code'),
+        numberValue: row.readInt('number_value'),
+        textValue: row.readString('text_value'),
+        timeValue: row.readDateTime('time_value'),
+        booleanValue: row.readBool('boolean_value')))
+        .get();
+  }
+
+
 
   Stream<List<AlarmHeader>> selectAlarmHeaderOrderByTimeWatch() {
     return customSelect(

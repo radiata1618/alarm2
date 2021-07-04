@@ -11,12 +11,14 @@ class Parameter extends DataClass implements Insertable<Parameter> {
   final String code;
   final int numberValue;
   final String textValue;
+  final DateTime timeValue;
   final bool booleanValue;
   Parameter(
       {@required this.code,
-      @required this.numberValue,
-      @required this.textValue,
-      @required this.booleanValue});
+      this.numberValue,
+      this.textValue,
+      this.timeValue,
+      this.booleanValue});
   factory Parameter.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -27,6 +29,8 @@ class Parameter extends DataClass implements Insertable<Parameter> {
           .mapFromDatabaseResponse(data['${effectivePrefix}number_value']),
       textValue: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}text_value']),
+      timeValue: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}time_value']),
       booleanValue: const BoolType()
           .mapFromDatabaseResponse(data['${effectivePrefix}boolean_value']),
     );
@@ -43,6 +47,9 @@ class Parameter extends DataClass implements Insertable<Parameter> {
     if (!nullToAbsent || textValue != null) {
       map['text_value'] = Variable<String>(textValue);
     }
+    if (!nullToAbsent || timeValue != null) {
+      map['time_value'] = Variable<DateTime>(timeValue);
+    }
     if (!nullToAbsent || booleanValue != null) {
       map['boolean_value'] = Variable<bool>(booleanValue);
     }
@@ -58,6 +65,9 @@ class Parameter extends DataClass implements Insertable<Parameter> {
       textValue: textValue == null && nullToAbsent
           ? const Value.absent()
           : Value(textValue),
+      timeValue: timeValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timeValue),
       booleanValue: booleanValue == null && nullToAbsent
           ? const Value.absent()
           : Value(booleanValue),
@@ -71,6 +81,7 @@ class Parameter extends DataClass implements Insertable<Parameter> {
       code: serializer.fromJson<String>(json['code']),
       numberValue: serializer.fromJson<int>(json['numberValue']),
       textValue: serializer.fromJson<String>(json['textValue']),
+      timeValue: serializer.fromJson<DateTime>(json['timeValue']),
       booleanValue: serializer.fromJson<bool>(json['booleanValue']),
     );
   }
@@ -81,6 +92,7 @@ class Parameter extends DataClass implements Insertable<Parameter> {
       'code': serializer.toJson<String>(code),
       'numberValue': serializer.toJson<int>(numberValue),
       'textValue': serializer.toJson<String>(textValue),
+      'timeValue': serializer.toJson<DateTime>(timeValue),
       'booleanValue': serializer.toJson<bool>(booleanValue),
     };
   }
@@ -89,11 +101,13 @@ class Parameter extends DataClass implements Insertable<Parameter> {
           {String code,
           int numberValue,
           String textValue,
+          DateTime timeValue,
           bool booleanValue}) =>
       Parameter(
         code: code ?? this.code,
         numberValue: numberValue ?? this.numberValue,
         textValue: textValue ?? this.textValue,
+        timeValue: timeValue ?? this.timeValue,
         booleanValue: booleanValue ?? this.booleanValue,
       );
   @override
@@ -102,6 +116,7 @@ class Parameter extends DataClass implements Insertable<Parameter> {
           ..write('code: $code, ')
           ..write('numberValue: $numberValue, ')
           ..write('textValue: $textValue, ')
+          ..write('timeValue: $timeValue, ')
           ..write('booleanValue: $booleanValue')
           ..write(')'))
         .toString();
@@ -110,8 +125,10 @@ class Parameter extends DataClass implements Insertable<Parameter> {
   @override
   int get hashCode => $mrjf($mrjc(
       code.hashCode,
-      $mrjc(numberValue.hashCode,
-          $mrjc(textValue.hashCode, booleanValue.hashCode))));
+      $mrjc(
+          numberValue.hashCode,
+          $mrjc(textValue.hashCode,
+              $mrjc(timeValue.hashCode, booleanValue.hashCode)))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -119,6 +136,7 @@ class Parameter extends DataClass implements Insertable<Parameter> {
           other.code == this.code &&
           other.numberValue == this.numberValue &&
           other.textValue == this.textValue &&
+          other.timeValue == this.timeValue &&
           other.booleanValue == this.booleanValue);
 }
 
@@ -126,31 +144,34 @@ class ParametersCompanion extends UpdateCompanion<Parameter> {
   final Value<String> code;
   final Value<int> numberValue;
   final Value<String> textValue;
+  final Value<DateTime> timeValue;
   final Value<bool> booleanValue;
   const ParametersCompanion({
     this.code = const Value.absent(),
     this.numberValue = const Value.absent(),
     this.textValue = const Value.absent(),
+    this.timeValue = const Value.absent(),
     this.booleanValue = const Value.absent(),
   });
   ParametersCompanion.insert({
     @required String code,
-    @required int numberValue,
-    @required String textValue,
+    this.numberValue = const Value.absent(),
+    this.textValue = const Value.absent(),
+    this.timeValue = const Value.absent(),
     this.booleanValue = const Value.absent(),
-  })  : code = Value(code),
-        numberValue = Value(numberValue),
-        textValue = Value(textValue);
+  }) : code = Value(code);
   static Insertable<Parameter> custom({
     Expression<String> code,
     Expression<int> numberValue,
     Expression<String> textValue,
+    Expression<DateTime> timeValue,
     Expression<bool> booleanValue,
   }) {
     return RawValuesInsertable({
       if (code != null) 'code': code,
       if (numberValue != null) 'number_value': numberValue,
       if (textValue != null) 'text_value': textValue,
+      if (timeValue != null) 'time_value': timeValue,
       if (booleanValue != null) 'boolean_value': booleanValue,
     });
   }
@@ -159,11 +180,13 @@ class ParametersCompanion extends UpdateCompanion<Parameter> {
       {Value<String> code,
       Value<int> numberValue,
       Value<String> textValue,
+      Value<DateTime> timeValue,
       Value<bool> booleanValue}) {
     return ParametersCompanion(
       code: code ?? this.code,
       numberValue: numberValue ?? this.numberValue,
       textValue: textValue ?? this.textValue,
+      timeValue: timeValue ?? this.timeValue,
       booleanValue: booleanValue ?? this.booleanValue,
     );
   }
@@ -180,6 +203,9 @@ class ParametersCompanion extends UpdateCompanion<Parameter> {
     if (textValue.present) {
       map['text_value'] = Variable<String>(textValue.value);
     }
+    if (timeValue.present) {
+      map['time_value'] = Variable<DateTime>(timeValue.value);
+    }
     if (booleanValue.present) {
       map['boolean_value'] = Variable<bool>(booleanValue.value);
     }
@@ -192,6 +218,7 @@ class ParametersCompanion extends UpdateCompanion<Parameter> {
           ..write('code: $code, ')
           ..write('numberValue: $numberValue, ')
           ..write('textValue: $textValue, ')
+          ..write('timeValue: $timeValue, ')
           ..write('booleanValue: $booleanValue')
           ..write(')'))
         .toString();
@@ -225,7 +252,7 @@ class $ParametersTable extends Parameters
     return GeneratedIntColumn(
       'number_value',
       $tableName,
-      false,
+      true,
     );
   }
 
@@ -237,7 +264,19 @@ class $ParametersTable extends Parameters
     return GeneratedTextColumn(
       'text_value',
       $tableName,
-      false,
+      true,
+    );
+  }
+
+  final VerificationMeta _timeValueMeta = const VerificationMeta('timeValue');
+  GeneratedDateTimeColumn _timeValue;
+  @override
+  GeneratedDateTimeColumn get timeValue => _timeValue ??= _constructTimeValue();
+  GeneratedDateTimeColumn _constructTimeValue() {
+    return GeneratedDateTimeColumn(
+      'time_value',
+      $tableName,
+      true,
     );
   }
 
@@ -248,13 +287,16 @@ class $ParametersTable extends Parameters
   GeneratedBoolColumn get booleanValue =>
       _booleanValue ??= _constructBooleanValue();
   GeneratedBoolColumn _constructBooleanValue() {
-    return GeneratedBoolColumn('boolean_value', $tableName, false,
-        defaultValue: const Constant(false));
+    return GeneratedBoolColumn(
+      'boolean_value',
+      $tableName,
+      true,
+    );
   }
 
   @override
   List<GeneratedColumn> get $columns =>
-      [code, numberValue, textValue, booleanValue];
+      [code, numberValue, textValue, timeValue, booleanValue];
   @override
   $ParametersTable get asDslTable => this;
   @override
@@ -277,14 +319,14 @@ class $ParametersTable extends Parameters
           _numberValueMeta,
           numberValue.isAcceptableOrUnknown(
               data['number_value'], _numberValueMeta));
-    } else if (isInserting) {
-      context.missing(_numberValueMeta);
     }
     if (data.containsKey('text_value')) {
       context.handle(_textValueMeta,
           textValue.isAcceptableOrUnknown(data['text_value'], _textValueMeta));
-    } else if (isInserting) {
-      context.missing(_textValueMeta);
+    }
+    if (data.containsKey('time_value')) {
+      context.handle(_timeValueMeta,
+          timeValue.isAcceptableOrUnknown(data['time_value'], _timeValueMeta));
     }
     if (data.containsKey('boolean_value')) {
       context.handle(

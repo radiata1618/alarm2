@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import "package:intl/intl.dart";
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'datamigration.dart';
 import 'db.dart';
@@ -58,17 +59,51 @@ class _RootWidgetState extends State<RootWidget>  with WidgetsBindingObserver{
 
     } else if (state == AppLifecycleState.resumed) {
 
-      //setState(_handleOnResumed);
+      setState(_handleOnResumed);
 
     }
   }
 
-  void _handleOnResumed() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => TestshowWidget()),
-    ).then((value) => setState(() {}));
+  Future<void> _handleOnResumed() async{
+
+    var db = MyDatabase();
+    var lastTimewithinMinute;
+    var runAlarmId;
+    var alarmRunFlg=false;
+
+    List<AlarmHeader> alarmHeaderList = await db.getAllalarmheaders();
+    for(var alarmHeader in alarmHeaderList){
+      lastTimewithinMinute =await calcLastWithinMinute(alarmHeader.id,db);
+      if(lastTimewithinMinute==true){
+        alarmRunFlg=true;
+        runAlarmId=alarmHeader.id;
+        break;
+      }
+    }
+
+    //パラメータの実行済み時間を更新
+    initializeDateFormatting("ja_JP");
+    var formatter = new DateFormat('yyyy/MM/dd(E) HH:mm', "ja_JP");
+    var datetimeNow = DateTime.now();
+
+    Parameter pm = Parameter(code :"alreadyTime"
+        ,numberValue:null
+        ,textValue:formatter.format(datetimeNow)
+        ,timeValue:datetimeNow
+        ,booleanValue:null);
+
+    db.updateparameter(pm);
+
+    print("日付更新完了");
+
+
+    if(alarmRunFlg) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) =>
+          TestshowWidget(
+              alarmId: runAlarmId)));
+    }
+
   }
   @override
   Widget build(BuildContext context) {
@@ -378,6 +413,58 @@ print("最初のinitialDayNow"+initialDayNow.toString());
 
 void fireAlarm() {
   print('Alarm Fired at ${DateTime.now()}');
-
 }
 
+Future<bool> calcLastWithinMinute(int alarmHeaderId, MyDatabase db) async {
+
+  List<AlarmHeader> ah = await db.selectAlarmHeaderById(alarmHeaderId);
+  if (ah[0].valid == false) {
+    return null;
+  }
+
+
+
+  List<Parameter> pm = await db.selectParameterByCode("alreadyTime");
+
+  print("PMの長さ："+pm.length.toString());
+  print("前回実行時間"+pm[0].timeValue.hour.toString()+":"+pm[0].timeValue.minute.toString());
+  print("アラーム時間"+ah[0].time.hour.toString()+":"+ah[0].time.minute.toString());
+
+
+  if(ah[0].time.hour<pm[0].timeValue.hour||(ah[0].time.hour==pm[0].timeValue.hour&&ah[0].time.minute<=pm[0].timeValue.minute)){
+
+    print("前回実行済み");
+    return false;
+  }
+
+
+  var now = DateTime.now();
+
+
+  var todayVal;
+  if(now.weekday==0){
+    todayVal=ah[0].sundayValid;
+  }else if(now.weekday==1){
+    todayVal=ah[0].mondayValid;
+  }else if(now.weekday==2){
+    todayVal=ah[0].tuesdayValid;
+  }else if(now.weekday==3){
+    todayVal=ah[0].wednesdayValid;
+  }else if(now.weekday==4){
+    todayVal=ah[0].thursdayValid;
+  }else if(now.weekday==5){
+    todayVal=ah[0].fridayValid;
+  }else if(now.weekday==6){
+    todayVal=ah[0].saturdayValid;
+  }
+
+  if(todayVal==false){
+    return false;
+  }
+
+  if(ah[0].time.minute==now.minute&&ah[0].time.hour==now.hour){//直近一分以内ならTrueを返す
+    return true;
+  }else {
+    return false;
+  }
+}
