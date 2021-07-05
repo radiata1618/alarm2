@@ -16,7 +16,7 @@ class _RingState extends State<Ring>{
   @override
   initState(){
     super.initState();
-
+    FlutterRingtonePlayer.play(asAlarm: true, android: AndroidSounds.alarm, ios: IosSounds.alarm,looping: true);
   }
 
   @override
@@ -27,83 +27,23 @@ class _RingState extends State<Ring>{
       ),
       body: Center(
         child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('playAlarm'),
-                onPressed: () {
-                  FlutterRingtonePlayer.playAlarm();
-                },
-              ),
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[Container(
+          height: 300,
+          width: 300,
+          child: ElevatedButton(
+            onPressed: () {FlutterRingtonePlayer.stop();},
+            child: Icon(Icons.directions_walk, size: 100,),
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all(CircleBorder()),
+              padding: MaterialStateProperty.all(EdgeInsets.all(20)),
+              backgroundColor: MaterialStateProperty.all(Colors.blue), // <-- Button color
+               // <-- Splash color
             ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('playAlarm asAlarm: false'),
-                onPressed: () {
-                  FlutterRingtonePlayer.playAlarm(asAlarm: false);
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('playNotification'),
-                onPressed: () {
-                  FlutterRingtonePlayer.playNotification();
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('playRingtone'),
-                onPressed: () {
-                  FlutterRingtonePlayer.playRingtone();
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('play'),
-                onPressed: () {
-                  FlutterRingtonePlayer.play(
-                    android: AndroidSounds.notification,
-                    ios: IosSounds.glass,
-                    looping: true,
-                    volume: 1.0,
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('stop'),
-                onPressed: () {
-                  FlutterRingtonePlayer.stop();
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8),
-              child: RaisedButton(
-                child: const Text('move to music screen'),
-                onPressed: () {
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Ring()),
-                  );
-
-                },
-              ),
-            ),
-          ],
+          ),
         ),
+          Container(child: Text('Please Walk!', style:TextStyle(fontSize: 60)),),
+       ])
       ),
     );
   }
